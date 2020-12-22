@@ -1,7 +1,7 @@
 [package]
 name = "wasmer"
 version = "1.0.0-beta2"
-description = "High-performant WebAssembly runtime"
+description = "High-performance WebAssembly runtime"
 categories = ["wasm"]
 keywords = ["wasm", "webassembly", "runtime", "vm"]
 authors = ["Wasmer Engineering Team <engineering@wasmer.io>"]
@@ -9,6 +9,11 @@ repository = "https://github.com/wasmerio/wasmer"
 license = "MIT"
 readme = "README.md"
 edition = "2018"
+
+[target.'cfg(target_os = "linux")']
+rustflags = [
+  "-C", "link-arg=-Wl,-E"
+]
 
 [dependencies]
 wasmer-vm = { path = "../vm", version = "1.0.0-beta2" }

@@ -10,6 +10,11 @@ license = "MIT OR Apache-2.0 WITH LLVM-exception"
 readme = "README.md"
 edition = "2018"
 
+[target.'cfg(target_os = "linux")']
+rustflags = [
+  "-C", "link-arg=-Wl,-E"
+]
+
 [dependencies]
 wasmer-types = { path = "../wasmer-types", version = "1.0.0-beta2" }
 region = "2.2"
