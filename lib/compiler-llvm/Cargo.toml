@@ -35,7 +35,7 @@ cc = "1.0"
 lazy_static = "1.4"
 regex = "1.3"
 semver = "1.0"
-rustc_version = "0.2"
+rustc_version = "0.4"
 
 [features]
 test = []

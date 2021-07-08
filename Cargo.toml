@@ -60,7 +60,7 @@ test-generator = { path = "tests/lib/test-generator" }
 build-deps = "0.1.4"
 anyhow = "1.0"
 glob = "0.3"
-rustc_version = "0.3"
+rustc_version = "0.4"
 
 [dev-dependencies]
 anyhow = "1.0"
