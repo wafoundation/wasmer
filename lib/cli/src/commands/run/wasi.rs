@@ -39,17 +39,17 @@ pub struct Wasi {
 #[allow(dead_code)]
 impl Wasi {
     /// Gets the WASI version (if any) for the provided module
-    pub fn get_versions(module: &Module) -> Option<BTreeSet<WasiVersion>> {
+    pub fn get_versions(module: &Module) -> BTreeSet<WasiVersion> {
         // Get the wasi version in strict mode, so no other imports are
         // allowed.
-        get_wasi_versions(&module, true)
+        get_wasi_versions(&module)
     }
 
     /// Checks if a given module has any WASI imports at all.
     pub fn has_wasi_imports(module: &Module) -> bool {
         // Get the wasi version in non-strict mode, so no other imports
         // are allowed
-        get_wasi_versions(&module, false).is_some()
+        !get_wasi_versions(&module).is_empty()
     }
 
     /// Helper function for executing Wasi from the `Run` command.

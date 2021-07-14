@@ -84,8 +84,7 @@ impl WasiEnv {
         &mut self,
         module: &Module,
     ) -> Result<Box<dyn NamedResolver>, WasiError> {
-        let wasi_versions =
-            get_wasi_versions(module, false).ok_or(WasiError::UnknownWasiVersion)?;
+        let wasi_versions = get_wasi_versions(module);
 
         let mut resolver: Box<dyn NamedResolver> = { Box::new(()) };
         for version in wasi_versions.iter() {
@@ -93,6 +92,7 @@ impl WasiEnv {
                 generate_import_object_from_env(module.store(), self.clone(), *version);
             resolver = Box::new(new_import_object.chain_front(resolver));
         }
+
         Ok(resolver)
     }
 
