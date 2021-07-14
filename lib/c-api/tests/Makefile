@@ -19,26 +19,18 @@ $(info * LDFLAGS: $(LDFLAGS))
 $(info * LDLIBS: $(LDLIBS))
 
 CAPI_BASE_TESTS = \
-	wasm-c-api/example/callback			wasm-c-api/example/global					wasm-c-api/example/hello \
-	wasm-c-api/example/memory			wasm-c-api/example/reflect					wasm-c-api/example/serialize \
-	wasm-c-api/example/start			wasm-c-api/example/trap						wasm-c-api/example/multi
+	wasm-c-api/example/callback	wasm-c-api/example/global	wasm-c-api/example/hello \
+	wasm-c-api/example/memory	wasm-c-api/example/reflect	wasm-c-api/example/serialize \
+	wasm-c-api/example/start	wasm-c-api/example/trap		wasm-c-api/example/multi
 
 CAPI_BASE_TESTS_NOT_WORKING = \
-	wasm-c-api/example/finalize			wasm-c-api/example/hostref					wasm-c-api/example/threads \
+	wasm-c-api/example/finalize	wasm-c-api/example/hostref	wasm-c-api/example/threads \
 	wasm-c-api/example/table
 
-ALL = $(CAPI_BASE_TESTS) $(CAPI_WASMER_TESTS)
-
-test-%: %.o
+ALL = $(CAPI_BASE_TESTS)
 
 .PHONY: all
 all: $(ALL)
-
-.PHONY: test-capi-wasmer
-.SILENT: test-capi-wasmer
-test-capi-wasmer: $(CAPI_WASMER_TESTS)
-	set -o errexit; \
-	$(foreach example,$?,echo Running \"$(example)\" example; cd $(shell dirname $(realpath $(example))) && ./$(shell basename $(example)); echo;)
 
 .PHONY: test-capi-base
 .SILENT: test-capi-base
@@ -48,7 +40,7 @@ test-capi-base: $(CAPI_BASE_TESTS)
 
 .PHONY: test-capi-base
 .SILENT: test-capi-base
-test-capi: test-capi-base test-capi-wasmer
+test-capi: test-capi-base
 
 test: test-capi
 
