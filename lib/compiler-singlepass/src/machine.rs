@@ -53,7 +53,12 @@ impl Machine {
     /// This method does not mark the register as used.
     pub fn pick_gpr(&self) -> Option<GPR> {
         use GPR::*;
+
+        #[cfg(not(target_os = "windows"))]
         static REGS: &[GPR] = &[RSI, RDI, R8, R9, R10, R11];
+        #[cfg(target_os = "windows")]
+        static REGS: &[GPR] = &[RCX, RDX, R8, R9];
+
         for r in REGS {
             if !self.used_gprs.contains(r) {
                 return Some(*r);
@@ -67,7 +72,10 @@ impl Machine {
     /// This method does not mark the register as used.
     pub fn pick_temp_gpr(&self) -> Option<GPR> {
         use GPR::*;
-        static REGS: &[GPR] = &[RAX, RCX, RDX];
+        #[cfg(not(target_os = "windows"))]
+        static REGS: &[GPR] = &[RDI, RSI, RBX, R10, R11, R12, R13, R14, R15];
+        #[cfg(target_os = "windows")]
+        static REGS: &[GPR] = &[RAX, RCX, RDX, R8, R9, R10, R11];
         for r in REGS {
             if !self.used_gprs.contains(r) {
                 return Some(*r);
@@ -102,7 +110,12 @@ impl Machine {
     /// This method does not mark the register as used.
     pub fn pick_xmm(&self) -> Option<XMM> {
         use XMM::*;
+
+        #[cfg(not(target_os = "windows"))]
         static REGS: &[XMM] = &[XMM3, XMM4, XMM5, XMM6, XMM7];
+        #[cfg(target_os = "windows")]
+        static REGS: &[XMM] = &[XMM3, XMM4, XMM5];
+
         for r in REGS {
             if !self.used_xmms.contains(r) {
                 return Some(*r);
@@ -521,6 +534,7 @@ impl Machine {
         }
     }
 
+    #[cfg(not(target_os = "windows"))]
     pub fn get_param_location(idx: usize) -> Location {
         match idx {
             0 => Location::GPR(GPR::RDI),
@@ -530,6 +544,17 @@ impl Machine {
             4 => Location::GPR(GPR::R8),
             5 => Location::GPR(GPR::R9),
             _ => Location::Memory(GPR::RBP, (16 + (idx - 6) * 8) as i32),
+        }
+    }
+
+    #[cfg(target_os = "windows")]
+    pub fn get_param_location(idx: usize) -> Location {
+        match idx {
+            0 => Location::GPR(GPR::RCX),
+            1 => Location::GPR(GPR::RDX),
+            2 => Location::GPR(GPR::R8),
+            3 => Location::GPR(GPR::R9),
+            _ => Location::Memory(GPR::RBP, (16 + (idx - 4) * 8) as i32),
         }
     }
 }

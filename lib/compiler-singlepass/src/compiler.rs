@@ -56,11 +56,6 @@ impl Compiler for SinglepassCompiler {
         _module_translation: &ModuleTranslationState,
         function_body_inputs: PrimaryMap<LocalFunctionIndex, FunctionBodyData<'_>>,
     ) -> Result<Compilation, CompileError> {
-        if target.triple().operating_system == OperatingSystem::Windows {
-            return Err(CompileError::UnsupportedTarget(
-                OperatingSystem::Windows.to_string(),
-            ));
-        }
         if let Architecture::X86_32(arch) = target.triple().architecture {
             return Err(CompileError::UnsupportedTarget(arch.to_string()));
         }

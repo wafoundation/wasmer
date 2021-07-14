@@ -950,13 +950,13 @@ impl<'a> FuncGen<'a> {
         Ok(())
     }
 
-    /// Emits a System V call sequence.
+    /// Emits a System V or Windows x64 call sequence.
     ///
     /// This function will not use RAX before `cb` is called.
     ///
     /// The caller MUST NOT hold any temporary registers allocated by `acquire_temp_gpr` when calling
     /// this function.
-    fn emit_call_sysv<I: Iterator<Item = Location>, F: FnOnce(&mut Self)>(
+    fn emit_call<I: Iterator<Item = Location>, F: FnOnce(&mut Self)>(
         &mut self,
         cb: F,
         params: I,
@@ -977,7 +977,7 @@ impl<'a> FuncGen<'a> {
                 self.machine.state.register_values[X64Register::GPR(*r).to_index().0].clone();
             if content == MachineValue::Undefined {
                 return Err(CodegenError {
-                    message: "emit_call_sysv: Undefined used_gprs content".to_string(),
+                    message: "emit_call: Undefined used_gprs content".to_string(),
                 });
             }
             self.machine.state.stack_values.push(content);
@@ -1004,7 +1004,7 @@ impl<'a> FuncGen<'a> {
                     self.machine.state.register_values[X64Register::XMM(*r).to_index().0].clone();
                 if content == MachineValue::Undefined {
                     return Err(CodegenError {
-                        message: "emit_call_sysv: Undefined used_xmms content".to_string(),
+                        message: "emit_call: Undefined used_xmms content".to_string(),
                     });
                 }
                 self.machine.state.stack_values.push(content);
@@ -1052,7 +1052,7 @@ impl<'a> FuncGen<'a> {
                             let content = self.machine.state.register_values
                                 [X64Register::GPR(x).to_index().0]
                                 .clone();
-                            // FIXME: There might be some corner cases (release -> emit_call_sysv -> acquire?) that cause this assertion to fail.
+                            // FIXME: There might be some corner cases (release -> emit_call -> acquire?) that cause this assertion to fail.
                             // Hopefully nothing would be incorrect at runtime.
 
                             //assert!(content != MachineValue::Undefined);
@@ -1068,8 +1068,7 @@ impl<'a> FuncGen<'a> {
                         Location::Memory(reg, offset) => {
                             if reg != GPR::RBP {
                                 return Err(CodegenError {
-                                    message: "emit_call_sysv loc param: unreachable code"
-                                        .to_string(),
+                                    message: "emit_call loc param: unreachable code".to_string(),
                                 });
                             }
                             self.machine
@@ -1119,7 +1118,7 @@ impl<'a> FuncGen<'a> {
                 }
                 _ => {
                     return Err(CodegenError {
-                        message: "emit_call_sysv loc: unreachable code".to_string(),
+                        message: "emit_call loc: unreachable code".to_string(),
                     })
                 }
             }
@@ -1144,7 +1143,7 @@ impl<'a> FuncGen<'a> {
 
         if (self.machine.state.stack_values.len() % 2) != 1 {
             return Err(CodegenError {
-                message: "emit_call_sysv: explicit shadow takes one slot".to_string(),
+                message: "emit_call: explicit shadow takes one slot".to_string(),
             });
         }
 
@@ -1178,7 +1177,7 @@ impl<'a> FuncGen<'a> {
             );
             if (stack_offset % 8) != 0 {
                 return Err(CodegenError {
-                    message: "emit_call_sysv: Bad restoring stack alignement".to_string(),
+                    message: "emit_call: Bad restoring stack alignement".to_string(),
                 });
             }
             for _ in 0..stack_offset / 8 {
@@ -1213,7 +1212,7 @@ impl<'a> FuncGen<'a> {
 
         if self.machine.state.stack_values.pop().unwrap() != MachineValue::ExplicitShadow {
             return Err(CodegenError {
-                message: "emit_call_sysv: Popped value is not ExplicitShadow".to_string(),
+                message: "emit_call: Popped value is not ExplicitShadow".to_string(),
             });
         }
         Ok(())
@@ -1225,7 +1224,7 @@ impl<'a> FuncGen<'a> {
         label: DynamicLabel,
         params: I,
     ) -> Result<(), CodegenError> {
-        self.emit_call_sysv(|this| this.assembler.emit_call_label(label), params)?;
+        self.emit_call(|this| this.assembler.emit_call_label(label), params)?;
         Ok(())
     }
 
@@ -5196,7 +5195,7 @@ impl<'a> FuncGen<'a> {
                     addend: 0,
                 });
 
-                // RAX is preserved on entry to `emit_call_sysv` callback.
+                // RAX is preserved on entry to `emit_call` callback.
                 // The Imm64 value is relocated by the JIT linker.
                 self.assembler.emit_mov(
                     Size::S64,
@@ -5204,7 +5203,7 @@ impl<'a> FuncGen<'a> {
                     Location::GPR(GPR::RAX),
                 );
 
-                self.emit_call_sysv(
+                self.emit_call(
                     |this| {
                         let offset = this.assembler.get_offset().0;
                         this.trap_table
@@ -5389,7 +5388,7 @@ impl<'a> FuncGen<'a> {
                 let vmcaller_checked_anyfunc_func_ptr =
                     self.vmoffsets.vmcaller_checked_anyfunc_func_ptr() as usize;
 
-                self.emit_call_sysv(
+                self.emit_call(
                     |this| {
                         if this.assembler.arch_requires_indirect_call_trampoline() {
                             this.assembler.arch_emit_indirect_call_with_trampoline(
@@ -5663,7 +5662,7 @@ impl<'a> FuncGen<'a> {
                     ),
                     Location::GPR(GPR::RAX),
                 );
-                self.emit_call_sysv(
+                self.emit_call(
                     |this| {
                         this.assembler.emit_call_register(GPR::RAX);
                     },
@@ -5856,7 +5855,7 @@ impl<'a> FuncGen<'a> {
 
                 self.machine.release_locations_only_osr_state(1);
 
-                self.emit_call_sysv(
+                self.emit_call(
                     |this| {
                         this.assembler.emit_call_register(GPR::RAX);
                     },
