@@ -10,6 +10,11 @@ edition = "2018"
 [lib]
 proc-macro = true
 
+[features]
+default-features = []
+# It will make imports from `wasmer_js::` instead of `wasmer::`
+js = []
+
 [dependencies]
 syn = { version = "1.0.72", features = ["full", "extra-traits"] }
 quote = "1"

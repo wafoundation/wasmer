@@ -43,6 +43,7 @@ members = [
     "lib/engine-universal",
     "lib/engine-dylib",
     "lib/engine-staticlib",
+    "lib/js-api",
     "lib/object",
     "lib/vm",
     "lib/wasi",

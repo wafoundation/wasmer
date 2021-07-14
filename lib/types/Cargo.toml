@@ -19,10 +19,10 @@ loupe = "0.1"
 
 [features]
 default = ["std", "enable-serde", "enable-rkyv"]
-std = ["serde/std"]
+std = []
 core = []
 enable-rkyv = ["rkyv"]
-enable-serde = ["serde"]
+enable-serde = ["serde", "serde/std"]
 
 # experimental / in-development features
 experimental-reference-types-extern-ref = []
