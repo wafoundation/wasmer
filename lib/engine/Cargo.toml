@@ -18,7 +18,7 @@ target-lexicon = { version = "0.12", default-features = false }
 # flexbuffers = { path = "../../../flatbuffers/rust/flexbuffers", version = "0.1.0" }
 backtrace = "0.3"
 rustc-demangle = "0.1"
-memmap2 = "0.2.0"
+memmap2 = "0.3.0"
 more-asserts = "0.2"
 thiserror = "1.0"
 serde = { version = "1.0", features = ["derive", "rc"] }
