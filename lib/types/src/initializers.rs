@@ -8,11 +8,12 @@ use rkyv::{Archive, Deserialize as RkyvDeserialize, Serialize as RkyvSerialize};
 use serde::{Deserialize, Serialize};
 
 /// A WebAssembly table initializer.
-#[derive(Clone, Debug, Hash, Serialize, Deserialize, MemoryUsage, PartialEq, Eq)]
+#[derive(Clone, Debug, Hash, MemoryUsage, PartialEq, Eq)]
 #[cfg_attr(
     feature = "enable-rkyv",
     derive(RkyvSerialize, RkyvDeserialize, Archive)
 )]
+#[cfg_attr(feature = "enable-serde", derive(Serialize, Deserialize))]
 pub struct TableInitializer {
     /// The index of a table to initialize.
     pub table_index: TableIndex,

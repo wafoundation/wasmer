@@ -1,0 +1,31 @@
+on:
+  push:
+    branches:
+      - 'master'
+      - 'staging'
+      - 'trying'
+    tags:
+      # this is _not_ a regex, see: https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#filter-pattern-cheat-sheet
+      - '[0-9]+.[0-9]+.[0-9]+*'
+
+name: wasmer-js tests
+
+env:
+  RUST_BACKTRACE: 1
+
+jobs:
+  wasmer-js:
+    name: wasmer-js
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          override: true
+      - name: Install wasm-pack
+        run: |
+          curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+      - name: Test wasmer-js
+        run: make test-js

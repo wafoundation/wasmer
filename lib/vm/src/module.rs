@@ -355,7 +355,7 @@ impl ModuleInfo {
         }
     }
 
-    /// Get the export types of the module
+    /// Get the import types of the module
     pub fn imports<'a>(&'a self) -> ImportsIterator<impl Iterator<Item = ImportType> + 'a> {
         let iter = self
             .imports

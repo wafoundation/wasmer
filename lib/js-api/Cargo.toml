@@ -1,0 +1,46 @@
+[package]
+name = "wasmer-js"
+version = "2.0.0"
+description = "Compile Wasmer to WebAssembly and use it in JavaScript"
+categories = ["wasm"]
+keywords = ["wasm", "webassembly", "runtime", "vm", "javascript"]
+authors = ["Wasmer Engineering Team <engineering@wasmer.io>"]
+repository = "https://github.com/wasmerio/wasmer"
+license = "MIT"
+readme = "README.md"
+edition = "2018"
+
+# `wasm-opt` is on by default in for the release profile, but it can be
+# disabled by setting it to `false`
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+wasm-bindgen = { version = "0.2.74" }
+js-sys = { version = "0.3.51" }
+wasmer-types = { path = "../types", version = "2.0.0", default-features = false, features = ["std"] }
+indexmap = { version = "1.6", features = ["serde-1"] }
+cfg-if = "1.0"
+wat = { version = "1.0", optional = true }
+thiserror = "1.0"
+more-asserts = "0.2"
+wasmer-derive = { path = "../derive", version = "2.0.0", features = ["js"] }
+wasmparser = { version = "0.78", optional = true, default-features = false }
+
+[dev-dependencies]
+wat = "1.0"
+anyhow = "1.0"
+wasm-bindgen-test = "0.3.0"
+# wasm-bindgen-test = { version= "0.3.0", path = "../../../wasm-bindgen/crates/test"}
+
+[badges]
+maintenance = { status = "actively-developed" }
+
+[features]
+default = ["std", "wasm-types-polyfill"]
+wasm-types-polyfill = ["wasmparser"]
+std = []
+core = []
